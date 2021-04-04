@@ -10,48 +10,24 @@
         <li>总价</li>
         <li>删除</li>
       </ul>
-      <div class="cart-item">
+      <div class="cart-item" v-for="item in this.CartData" :key="item.productId">
         <div class="cart-item-select">
           <input type="checkbox" />
         </div>
         <div class="cart-item-name">
-          小米移动电源
+          {{ item.productName }}
         </div>
         <div class="cart-item-img">
-          <img src="/images/1.jpg" alt="">
+          <img :src="'/images/'+item.productImage" alt="">
         </div>
-        <div class="cart-item-price">123</div>
-        <div class="cart-item-count">1</div>
-        <div class="cart-item-total">123</div>
-        <div class="cart-item-remove">删除</div>
-      </div>
-      <div class="cart-item">
-        <div class="cart-item-select">
-          <input type="checkbox" />
-        </div>
-        <div class="cart-item-name">
-          小米移动电源
-        </div>
-        <div class="cart-item-img">
-          <img src="/images/1.jpg" alt="">
-        </div>
-        <div class="cart-item-price">123</div>
-        <div class="cart-item-count">1</div>
-        <div class="cart-item-total">123</div>
-        <div class="cart-item-remove">删除</div>
-      </div>
-      <div class="cart-item">
-        <div class="cart-item-select">
-          <input type="checkbox" />
-        </div>
-        <div class="cart-item-name">
-          小米移动电源
-        </div>
-        <div class="cart-item-img">
-          <img src="/images/1.jpg" alt="">
-        </div>
-        <div class="cart-item-price">123</div>
-        <div class="cart-item-count">1</div>
+        <div class="cart-item-price">{{item.productPrice}}</div>
+        <div class="cart-item-count">
+          <div class="count-area">
+            <a href="javascript:;">-</a>
+            <span>{{item.productCount}}</span>
+            <a href="javascript:;">+</a>
+          </div>
+          </div>
         <div class="cart-item-total">123</div>
         <div class="cart-item-remove">删除</div>
       </div>
@@ -70,11 +46,26 @@
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator"
+import { CartBoardItem } from "../../types/index"
+import axios from 'axios'
 
 @Component({
     name: "CartBoard"
 })
-export default class CartBoard extends Vue {}
+export default class CartBoard extends Vue {
+  private CartData:CartBoardItem[] = [];
+
+  getCartData(){
+    axios.get('/mock/cart.json').then(res => {
+      const result = res.data;
+      this.CartData = result.data
+    })
+  }
+
+  private created(){
+    this.getCartData()
+  }
+}
 </script>
 
 <style scoped lang="scss">
