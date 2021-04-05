@@ -10,9 +10,9 @@
         <li>总价</li>
         <li>删除</li>
       </ul>
-      <div class="cart-item" v-for="item in this.CartData" :key="item.productId">
+      <div class="cart-item" v-for="(item,index) in this.CartData" :key="item.productId">
         <div class="cart-item-select">
-          <input type="checkbox" />
+          <input type="checkbox" @click="editCart('check', index)" :checked="item.checked"/>
         </div>
         <div class="cart-item-name">
           {{ item.productName }}
@@ -20,22 +20,31 @@
         <div class="cart-item-img">
           <img :src="'/images/'+item.productImage" alt="">
         </div>
-        <div class="cart-item-price">{{item.productPrice}}</div>
+        <div class="cart-item-price">{{item.productPrice | currency}}</div>
         <div class="cart-item-count">
           <div class="count-area">
-            <a href="javascript:;">-</a>
+            <a href="javascript:;" @click="editCart('minus', index)">-</a>
             <span>{{item.productCount}}</span>
-            <a href="javascript:;">+</a>
+            <a href="javascript:;" @click="editCart('add', index)">+</a>
           </div>
           </div>
-        <div class="cart-item-total">123</div>
-        <div class="cart-item-remove">删除</div>
+        <div class="cart-item-total">
+          <div class="total-price">
+            {{ item.productCount * item.productPrice | currency}}
+          </div>
+        </div>
+        <div class="cart-item-remove" @click="removeItem(item)">
+          <a href="javascript:;">
+            删除
+          </a>
+        </div>
       </div>
       <div class="cart-board-footer">
         <div class="total-price">
           <div class="price-text">总价：
-            <span class="price-num">123</span>
-            <button class="total-btn">结算</button>
+            <span class="price-num"><span class="total-price">
+              {{setTotalPrice | currency}}</span></span>
+            <button class="total-btn" @click="checkout">结算</button>
           </div>
           
         </div>
@@ -50,7 +59,12 @@ import { CartBoardItem } from "../../types/index"
 import axios from 'axios'
 
 @Component({
-    name: "CartBoard"
+    name: "CartBoard",
+    filters: {
+      currency: function(value: number){
+        return value ? '￥'+(value * 1).toFixed(2) : '0.00'
+      }
+    }
 })
 export default class CartBoard extends Vue {
   private CartData:CartBoardItem[] = [];
@@ -60,6 +74,44 @@ export default class CartBoard extends Vue {
       const result = res.data;
       this.CartData = result.data
     })
+  }
+
+  editCart(option: string, idx: number){
+    switch (option){
+      case 'minus':
+        this.CartData[idx].productCount --;
+        break;
+      case 'add':
+        this.CartData[idx].productCount ++;
+        break;
+      case 'check':
+        this.CartData[idx].checked = !this.CartData[idx].checked;
+        break;
+      default:
+        break;
+    }
+  }
+
+  removeItem(opt: CartBoardItem){
+    this.CartData.forEach((item,idx) => {
+      if(item.productId === opt.productId){
+        this.CartData.splice(idx, 1)
+      }
+    })
+  }
+
+  get setTotalPrice(){
+    let totalPrice = 0
+    this.CartData.forEach((item,idx)=>{
+      if(item.checked){
+        totalPrice += item.productPrice * item.productCount
+      }
+    })
+    return totalPrice
+  }
+
+  checkout(){
+    this.$router.push('/address')
   }
 
   private created(){

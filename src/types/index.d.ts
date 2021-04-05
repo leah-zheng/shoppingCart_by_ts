@@ -6,3 +6,12 @@ export interface CartBoardItem {
     "productImage": string,
     "checked":boolean
 }
+
+export interface AddressItem {
+    "addressId": string,
+      "userName": string,
+      "streetName": string,
+      "postCode": string,
+      "tel": number,
+      "isDefault": boolean
+}
